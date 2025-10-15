@@ -25,5 +25,4 @@ jobs:
       - name: Test container
         run: |
           docker run --rm myapp:test echo "Container works!"
-          curl -f http://localhost:8080 || exit 1
-          docker stop myapp
+          exit 1
