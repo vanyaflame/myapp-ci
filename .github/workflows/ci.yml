@@ -24,5 +24,14 @@ jobs:
       # Шаг 3: Проверить, что контейнер запускается
       - name: Test container
         run: |
-          docker run --rm myapp:test echo "Container works!"
-          docker down myapp:test
+          docker run -d --name test-container -p 8080:8080 myapp:test
+
+          sleep 10
+
+          curl -f http://localhost:8080 || echo "Aplication is not responding"
+
+          docker stop test-container
+          docker rm test-container
+
+          echo "Container test completed succesfully"
+
