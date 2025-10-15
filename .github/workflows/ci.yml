@@ -25,9 +25,4 @@ jobs:
       - name: Test container
         run: |
           docker run --rm myapp:test echo "Container works!"
-          exit 1
-
-      - name: exit
-        run: |
           docker down myapp:test
-          exit 1
