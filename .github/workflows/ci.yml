@@ -25,7 +25,5 @@ jobs:
       - name: Test container
         run: |
           docker run --rm myapp:test echo "Container works!"
-
           sleep 10
-	  
- 	  curl -f http://localhost:8080 || exit 1
+          curl -f http://localhost:8080 || exit 1
