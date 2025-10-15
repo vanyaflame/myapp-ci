@@ -27,3 +27,5 @@ jobs:
           docker run --rm myapp:test echo "Container works!"
           sleep 10
           curl -f http://localhost:8080 || exit 1
+          docker stop myapp:test
+          docker rm myapp:test
