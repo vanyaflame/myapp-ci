@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using SimpleTaskApp.Models;
 
 namespace SimpleTaskApp.Services
@@ -14,40 +13,70 @@ namespace SimpleTaskApp.Services
 
     public class TaskService : ITaskService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly List<TaskItem> _tasks = new();
+        private int _nextId = 1;
 
-        public TaskService(ApplicationDbContext context)
+        public TaskService()
         {
-            _context = context;
+            // Добавляем тестовые данные
+            _tasks.Add(new TaskItem { 
+                Id = _nextId++, 
+                Title = "Изучить ASP.NET Core", 
+                Description = "Освоить основы веб-разработки на .NET",
+                IsCompleted = true,
+                CreatedDate = DateTime.UtcNow.AddDays(-2)
+            });
+            _tasks.Add(new TaskItem { 
+                Id = _nextId++, 
+                Title = "Создать простое приложение", 
+                Description = "Разработать задачник",
+                IsCompleted = false,
+                CreatedDate = DateTime.UtcNow.AddDays(-1)
+            });
+            _tasks.Add(new TaskItem { 
+                Id = _nextId++, 
+                Title = "Протестировать функциональность", 
+                IsCompleted = false,
+                CreatedDate = DateTime.UtcNow
+            });
         }
 
-        public async Task<List<TaskItem>> GetAllTasksAsync() 
-            => await _context.Tasks.OrderByDescending(t => t.CreatedDate).ToListAsync();
+        public Task<List<TaskItem>> GetAllTasksAsync() 
+            => Task.FromResult(_tasks.OrderByDescending(t => t.CreatedDate).ToList());
 
-        public async Task<TaskItem?> GetTaskByIdAsync(int id) 
-            => await _context.Tasks.FindAsync(id);
+        public Task<TaskItem?> GetTaskByIdAsync(int id) 
+            => Task.FromResult(_tasks.FirstOrDefault(t => t.Id == id));
 
-        public async Task AddTaskAsync(TaskItem task)
+        public Task AddTaskAsync(TaskItem task)
         {
+            task.Id = _nextId++;
             task.CreatedDate = DateTime.UtcNow;
-            _context.Tasks.Add(task);
-            await _context.SaveChangesAsync();
+            _tasks.Add(task);
+            return Task.CompletedTask;
         }
 
-        public async Task UpdateTaskAsync(TaskItem task)
+        public Task UpdateTaskAsync(TaskItem task)
         {
-            _context.Tasks.Update(task);
-            await _context.SaveChangesAsync();
+            var existingTask = _tasks.FirstOrDefault(t => t.Id == task.Id);
+            if (existingTask != null)
+            {
+                existingTask.Title = task.Title;
+                existingTask.Description = task.Description;
+                existingTask.IsCompleted = task.IsCompleted;
+                // Сохраняем оригинальную дату создания
+                task.CreatedDate = existingTask.CreatedDate;
+            }
+            return Task.CompletedTask;
         }
 
-        public async Task DeleteTaskAsync(int id)
+        public Task DeleteTaskAsync(int id)
         {
-            var task = await GetTaskByIdAsync(id);
+            var task = _tasks.FirstOrDefault(t => t.Id == id);
             if (task != null)
             {
-                _context.Tasks.Remove(task);
-                await _context.SaveChangesAsync();
+                _tasks.Remove(task);
             }
+            return Task.CompletedTask;
         }
     }
 }

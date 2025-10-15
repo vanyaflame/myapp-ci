@@ -59,12 +59,6 @@ namespace SimpleTaskApp.Controllers
             {
                 try
                 {
-                    var existingTask = await _taskService.GetTaskByIdAsync(id);
-                    if (existingTask != null)
-                    {
-                        task.CreatedDate = existingTask.CreatedDate;
-                    }
-                    
                     await _taskService.UpdateTaskAsync(task);
                 }
                 catch (Exception)
